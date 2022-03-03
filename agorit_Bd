@@ -97,3 +97,32 @@ end
 --  De 10 até 17  |   Jovem
 --  De 18 até 60  |   Adulto
 --  Acima de  61  |   Idoso
+
+declare @idade as int
+set @idade = 40
+select @idade,
+case
+when @idade < 10 then 'Criança'
+when @idade >= 10 and @idade <= 17 then 'Jovem'
+when @idade >= 18 and @idade <= 60 then 'Adulto'
+else 'Idoso'
+end as resultado
+
+--4) Mostrar se o aluno mario da silva está cadastrado na tabela e calcular aumento na
+--mensalidade de 10% e apresentar como jovem se idade menor que 60 senão idoso
+
+declare @idade as int
+declare @nome as varchar (100)
+declare @mensa numeric (12,2)
+set @nome = 'Mario da Silva'
+set @mensa = (select mensalidade from Aluno	where nome=@nome)
+set @idade = (select year (getdate()) - year (DataNcto) from Aluno where nome = @nome
+set @mensa * 1.1 --recebe aumento de 10%
+select @mensa --mostra valor da mensalidade
+if @idade < 60
+begin
+print 'Jovem'
+end
+begin
+select 'Idoso'
+end
