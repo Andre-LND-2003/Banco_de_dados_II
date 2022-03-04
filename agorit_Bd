@@ -126,3 +126,62 @@ end
 begin
 select 'Idoso'
 end
+
+--5) Elabore um script em SQL que apresente um contador até 1000 e mostre a soma dos
+--números multiplicados por 3 e multiplicados por 5 e no final mostrar a soma de cada um deles; 
+
+declare @contador as int
+set @contador = 1
+while @contador =< 1000
+begin
+select @contador 
+
+
+
+
+--6) Mostrar em PL/SQL se o aluno Mário da silva está contido em uma variável, bem como seu
+--salário e calcular aumento de 10% para ele e mostre o nome em letras maiúsculas.
+
+
+
+--7) Elabore um laço de repetição usando PL/SQL que use While e quando o valor for 8 pare e
+--finalize o programa;
+
+declare @valor as int
+set @valor = 1
+while @valor <= 10
+begin
+select @valor
+if @valor <= 7
+begin 
+set @valor = @valor + 1
+continue
+end
+break
+end
+
+--8) Desenvolva um script em PL/SQL que use duas variáveis e verifique se a media for acima de
+--6 o aluno está aprovado senão reprovado;
+
+declare @nota1 numeric (12,2)
+declare @nota2 numeric (12,2)
+set @nota1 = 5
+set @nota2 = 5
+select @nota1 + @nota2
+case
+when @nota1 + @nota2 >= 12 then 'aprovado'
+else 'reprovado'
+end
+
+
+--9) Elabore um script em PL/SQL que verifique os números de 1 até 100 e mostre a quantidade
+--de pares e impares no final, bem como a soma de todos os pares e também a soma dos
+--impares.
+
+
+
+--10) Crie um script em PL/SQL usando CASE que mostre um laço de repetição de 1 até 5000 e
+--apresente a seguinte mensagem:
+--Se número entre 1000 e 2000 analista júnior
+--Se número entre 2500 e 4000 analista pleno
+--Senão analista sênior
