@@ -1,5 +1,7 @@
 create database Db_andre
 
+drop table Aluno
+
 CREATE TABLE [Aluno]
 (Matricula Int NOT NULL Identity(1,1) --Contador automático
 ,NomeAluno Varchar(100) NOT NULL
@@ -99,7 +101,9 @@ end
 --  Acima de  61  |   Idoso
 
 declare @idade as int
-set @idade = 40
+set @idade = day(getdate())+month(getdate()) +
+convert (int, substring( convert(char(4),year(getdate())),3,2))
+
 select @idade,
 case
 when @idade < 10 then 'Criança'
@@ -130,19 +134,54 @@ end
 --5) Elabore um script em SQL que apresente um contador até 1000 e mostre a soma dos
 --números multiplicados por 3 e multiplicados por 5 e no final mostrar a soma de cada um deles; 
 
-declare @contador as int
-set @contador = 1
-while @contador =< 1000
+declare @num as int
+declare @soma3 as int
+declare @soma5 as int
+declare @qtde3 as int
+declare @qtde5 as int
+set @num = 1
+set @soma3 = 0
+set @soma5 = 0
+set @qtde3 = 0
+set @qtde5 = 0
+while @num <= 1000
 begin
-select @contador 
-
-
-
+if @num%3 = 0
+begin
+set @soma3 = @soma3 + @num
+set @qtde3 = @qtde3 + 1
+end
+if @num%5 = 0
+begin
+set @soma5 = @soma5 + @num
+set @qtde5 = @qtde5 + 1
+end
+select 'Soma dos multiplos de 3 =>' + convert(char(10), @soma3)
+select 'Soma dos multiplos de 5 =>' + convert(char(10), @soma5)
+select 'Soma dos multiplos de 3 =>' + convert(char(10), @soma3)
+select 'Soma dos multiplos de 5 =>' + convert(char(10), @soma5)
 
 --6) Mostrar em PL/SQL se o aluno Mário da silva está contido em uma variável, bem como seu
 --salário e calcular aumento de 10% para ele e mostre o nome em letras maiúsculas.
 
+INSERT ALUNO VALUES ('José da Silva','12345678900','19911121', 1000,'ADS3')
+INSERT ALUNO VALUES ('Maria da Silva', '12345678911','20000317',1000, 'ADS1')
+INSERT ALUNO VALUES ('Ana da Silva', '12345678922','20000317', 1000,'ADS3')
 
+declare @nome varchar(100)
+declare @salario numeric(10,2)
+declare @nomeAluno varchar(100)
+set @nome = 'Maria da Silva'
+set @salario = 3000
+set @nomeAluno = (select nomeAluno from Aluno where @nome = @nomeAluno)
+select @nomeAluno
+
+if @nomeAluno = @nome
+begin
+select 'Aluno contido' + @nome
+select 'Salario com 10%'+ convert(char(10), @salario*1,1)
+select 'Aluno '+ upper(@nome)
+end
 
 --7) Elabore um laço de repetição usando PL/SQL que use While e quando o valor for 8 pare e
 --finalize o programa;
@@ -165,9 +204,9 @@ end
 
 declare @nota1 numeric (12,2)
 declare @nota2 numeric (12,2)
-set @nota1 = 5
-set @nota2 = 5
-select @nota1 + @nota2
+set @nota1 = 4
+set @nota2 = 9
+select @nota1 + @nota2,
 case
 when @nota1 + @nota2 >= 12 then 'aprovado'
 else 'reprovado'
@@ -178,10 +217,112 @@ end
 --de pares e impares no final, bem como a soma de todos os pares e também a soma dos
 --impares.
 
+declare @contador as int
+DECLARE @somapar as int
+declare @qtdepar as int
+declare @somaimpar as int
+declare @qtdeimpar as int
 
+set @contador = 1
+set @somapar = 0
+set @qtdepar = 0
+set @somaimpar = 0
+set @qtdeimpar = 0
+
+while @contador <= 100
+begin
+if @contador % 2= 0
+begin
+set @somapar = @somapar + @contador
+set @qtdepar = @qtdepar + 1
+end
+else
+begin
+set @somaimpar = @somaimpar + @contador
+set @qtdeimpar = @qtdeimpar + 1
+end
+set @contador = @contador + 1
+end
+select 'qtde de par '+ convert(char())
+
+(INCOMPLETO)
 
 --10) Crie um script em PL/SQL usando CASE que mostre um laço de repetição de 1 até 5000 e
 --apresente a seguinte mensagem:
 --Se número entre 1000 e 2000 analista júnior
 --Se número entre 2500 e 4000 analista pleno
 --Senão analista sênior
+
+declare @salario as int
+set @salario = 1
+while @salario <= 5000
+begin
+select @salario,
+case
+when @salario >= 1000 and @salario <= 2000 then 'Analista Junior'
+when @salario > 2500 and @salario < 4000 then 'Analista pleno'
+else 'Analista Senior'
+end as resultado
+set @salario = @salario +1
+end
+
+
+
+-------------STORED PROCEDURED-------------
+
+
+
+create table ALUNO
+(matricula int primary key,
+ nome varchar(100),
+ turma varchar(100),
+ mensalidade numeric(7,2),
+ nota1 numeric(3,1),
+ nota2 numeric(3,1),
+ municipio varchar(100))
+
+insert aluno values(1,'José','3a',1500, 8,9, 'Curitiba')
+insert aluno values(2,'Maira','3B',500, 2,9, 'São José dos Pinhais')
+insert aluno values(3,'Pedro','3a',2500, 6,5, 'Curitiba')
+insert aluno values(4,'Tereza','3B',500, 9,9, 'São José dos Pinhais')
+insert aluno values(5,'Marli','3a',3500, 4,2, 'Curitiba')
+insert aluno values(6,'Roberto','3B',750, 8,9, 'Curitiba')
+insert aluno values(7,'Carlos','3a',100, 7,5, 'São José dos Pinhais')
+insert aluno values(8,'Maria','3B',2500, 10,8, 'Curitiba')
+insert aluno values(9,'Francisco','3a',3500, 4,3, 'Curitiba')
+insert aluno values(10,'Marialva','3B',4500, 8,9, 'São José dos Pinhais')
+
+--1. Crie uma stored procedure que selecione os alunos do município de Curitiba.
+
+create procedure sp_alunos_Curitiba
+as
+select * from aluno where municipio = 'Curitiba'
+
+
+exec sp_alunos_Curitiba
+
+--2. Crie uma stored procedure que selecione o número de alunos do município
+--de São José dos Pinhais com média maior ou igual a 7.
+
+create procedure sp_numerDeAlunos_SaoJose
+as 
+declare @media as int
+select @media = 
+select * from aluno where municipio = 'São José dos Pinhais'
+
+
+
+--3. Crie uma stored procedure que some o valor das mensalidades por
+--município passando o nome do município por parâmetro.
+
+
+
+--4. Crie uma stored procedure que calcule a média de um aluno, passando a
+--matricula do mesmo como parâmetro e informe se o mesmo está aprovado
+--para média maior igual a sete, reprovado para média menor que quatro e em
+--recuperação para médias maiores ou igual a quatro e menores que sete.
+
+
+
+--5. Crie uma stored procedure que mostre o nome e a média de todos alunos do
+--município de Curitiba. 
