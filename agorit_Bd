@@ -506,3 +506,67 @@ INSERT INTO NF_PRODUTO VALUES(10, 1450, 4545)
 
 ---Execução
 exec SP_INSERT_NF_PRODUTO @quantidade = 2, @codigo = 1450, @numero = 4545
+
+
+--------Exercícios de Stored Procedures 240322-------
+
+
+
+--1) Desenvolva uma procedure em PL/SQL que faça a verificação na tabela aluno
+--se o mesmo está aprovado (maior igual a 7), recuperação (maior que 4 e menor
+--que 7) e reprovado (menor que 4). Crie a tabela com os seguintes campos
+--código, nome, nota1, nota2, coddis, mensalidade, qtdefalta.
+
+create table ALUNO
+(codigo int primary key,
+ nome varchar(100),
+ mensalidade numeric(7,2),
+ nota1 numeric(3,1),
+ nota2 numeric(3,1),
+ coddis int,
+ qtdefalta int)
+
+create procedure sp_Verificar_aluno
+@codigo int, @nome varchar(100), @mensalidade numeric(7,2), @nota1 numeric(3,1),
+@nota2 numeric(3,1), @coddis int, @qtdefalta int
+
+declare @media numeric(3,1)
+set @media = (select(nota1+nota2)/2 from aluno where matricula = @matricula)
+if @media >= 7
+begin
+select 'APROVADO' + convert(char(5),@media)
+end 
+else if @media < 4
+begin 
+select 'REPROVADO' + convert(char(5),@media)
+end
+else
+print 'RECUPERAÇÃO' + convert(char(5),@media)
+
+insert into values (@codigo, @nome, @mensalidade, @nota1, @nota2, @coddis, @qtdefalta)
+
+
+--2 Crie uma procedure em PL/SQL para inserir um aluno na tabela apenas se a
+--quantidade de alunos for menor que 10 senão apresentar a quantidade e
+--mensagem turma lotada.
+
+create procedure sp_inserir_aluno
+
+
+--3) Faça uma procedure em PL/SQL que apresente a quantidade de alunos
+--aprovados, em recuperação e aprovados.
+
+
+
+--4) Crie a tabela disciplina (código, nome, cargaho) e relacione com a tabela aluno
+--e insira os dados na tabela disciplina e no campo da tabela aluno e elabore uma
+--procedure em PL/SQL que apresente os seguintes valores:
+--a) Para a disciplina Matemática mensalidade mais 10%
+--b) Para Banco de dados mensalidade menos 20 %
+--c) Para Programação mensalidade mais 15%
+
+
+
+--5 Desenvolva uma procedure em PL/SQL que passe por parâmetro o código do
+--aluno e se não encontrar mostrar a mensagem aluno não cadastrado, se
+--encontrar mostrar o nome a media e a disciplina cursada. 
