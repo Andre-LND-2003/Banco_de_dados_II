@@ -1,6 +1,6 @@
 create database Db_andre
 
-drop table Aluno
+use Db_andre
 
 CREATE TABLE [Aluno]
 (Matricula Int NOT NULL Identity(1,1) --Contador automático
@@ -101,9 +101,7 @@ end
 --  Acima de  61  |   Idoso
 
 declare @idade as int
-set @idade = day(getdate())+month(getdate()) +
-convert (int, substring( convert(char(4),year(getdate())),3,2))
-
+set @idade = 40
 select @idade,
 case
 when @idade < 10 then 'Criança'
@@ -134,32 +132,14 @@ end
 --5) Elabore um script em SQL que apresente um contador até 1000 e mostre a soma dos
 --números multiplicados por 3 e multiplicados por 5 e no final mostrar a soma de cada um deles; 
 
-declare @num as int
-declare @soma3 as int
-declare @soma5 as int
-declare @qtde3 as int
-declare @qtde5 as int
-set @num = 1
-set @soma3 = 0
-set @soma5 = 0
-set @qtde3 = 0
-set @qtde5 = 0
-while @num <= 1000
+declare @contador as int
+set @contador = 1
+while @contador =< 1000
 begin
-if @num%3 = 0
-begin
-set @soma3 = @soma3 + @num
-set @qtde3 = @qtde3 + 1
-end
-if @num%5 = 0
-begin
-set @soma5 = @soma5 + @num
-set @qtde5 = @qtde5 + 1
-end
-select 'Soma dos multiplos de 3 =>' + convert(char(10), @soma3)
-select 'Soma dos multiplos de 5 =>' + convert(char(10), @soma5)
-select 'Soma dos multiplos de 3 =>' + convert(char(10), @soma3)
-select 'Soma dos multiplos de 5 =>' + convert(char(10), @soma5)
+select @contador 
+
+
+
 
 --6) Mostrar em PL/SQL se o aluno Mário da silva está contido em uma variável, bem como seu
 --salário e calcular aumento de 10% para ele e mostre o nome em letras maiúsculas.
@@ -186,7 +166,7 @@ end
 --7) Elabore um laço de repetição usando PL/SQL que use While e quando o valor for 8 pare e
 --finalize o programa;
 
-declare @valor as int
+declare @valor as int 
 set @valor = 1
 while @valor <= 10
 begin
@@ -204,8 +184,8 @@ end
 
 declare @nota1 numeric (12,2)
 declare @nota2 numeric (12,2)
-set @nota1 = 4
-set @nota2 = 9
+set @nota1 = 5
+set @nota2 = 5
 select @nota1 + @nota2,
 case
 when @nota1 + @nota2 >= 12 then 'aprovado'
@@ -246,6 +226,7 @@ end
 select 'qtde de par '+ convert(char())
 
 (INCOMPLETO)
+
 
 --10) Crie um script em PL/SQL usando CASE que mostre um laço de repetição de 1 até 5000 e
 --apresente a seguinte mensagem:
@@ -315,14 +296,213 @@ select * from aluno where municipio = 'São José dos Pinhais'
 --3. Crie uma stored procedure que some o valor das mensalidades por
 --município passando o nome do município por parâmetro.
 
+create procedure sp_mensaAluno
+@municipio varchar(50)
+as 
+select sum(Mensalidade) from aluno where municipio = @Municipio
 
+exec sp_mensaAluno 'São José dos Pinhais'
 
 --4. Crie uma stored procedure que calcule a média de um aluno, passando a
 --matricula do mesmo como parâmetro e informe se o mesmo está aprovado
 --para média maior igual a sete, reprovado para média menor que quatro e em
 --recuperação para médias maiores ou igual a quatro e menores que sete.
 
+create procedure sp_mediaAluno @matricula int
+as
 
+/* DECLARAÇÕES DE VARÍAVEIS LOCAIS */
+declare @media numeric(3,1)
+
+/* DEFINE O VALOR DAS VARIAVEIS  */
+set @media = (select(nota1+nota2)/2 from aluno where matricula = @matricula)
+
+/* VERIFICAÇÃO DO VALOR DA VARIAVEL */
+if @media >= 7
+begin
+select 'APROVADO' + convert(char(5),@media)
+end 
+else if @media < 4
+begin 
+select 'REPROVADO' + convert(char(5),@media)
+end
+else
+print 'RECUPERAÇÃO' + convert(char(5),@media)
+
+exec sp_mediaAluno 5
 
 --5. Crie uma stored procedure que mostre o nome e a média de todos alunos do
 --município de Curitiba. 
+
+
+create procedure sp_alunoMedia
+as
+select nome,(nota1+nota2)/2 as media
+from aluno where municipio = 'CURITIBA'
+
+exec sp_alunoMedia
+
+-----------Resolução dos Exercícios Stored Procedure 240322--------------
+
+--1
+
+create table FUNCIONARIO
+( MATRICULA int not null primary key,
+ NOME varchar(30),
+ SALARIO numeric(12,2),
+ DEPARTAMENTO varchar(40),
+ CARGO varchar(40)
+)
+create procedure insert_funcionario
+@matricula int, @nome varchar(40), @salario numeric(12,2), @departamento varchar(40), @cargo varchar(40)
+as
+ insert into FUNCIONARIO values (@matricula, @nome, @salario, @departamento, @cargo)
+
+ --execução
+
+ exec insert_funcionario @matricula = 13704790, @nome = 'Colin', @salario = 3500, @departamento = 'TI', @cargo = 'GERENTE'
+ select * from FUNCIONARIO
+
+ --2
+
+ create procedure insert_funcionario_2
+ @matricula int, @nome varchar(30), @salario numeric(12,2), @departamento
+varchar(40), @cargo
+varchar(40)
+AS
+DECLARE @matricula_cod int
+set @matricula_cod = 0
+SELECT @matricula_cod = MATRICULA FROM FUNCIONARIO WHERE MATRICULA = @matricula
+IF @matricula_cod = 0
+BEGIN
+INSERT INTO FUNCIONARIO values(@matricula, @nome, @salario, @departamento, @cargo)
+END
+ELSE
+BEGIN
+UPDATE FUNCIONARIO
+SET NOME = @nome, SALARIO = @salario, DEPARTAMENTO = @departamento, CARGO = @cargo
+WHERE MATRICULA = @matricula
+END
+
+exec insert_funcionario_2 @matricula = 19550943, @nome = 'Mario da Cruz', @salario =
+3900,
+@departamento = 'RH', @cargo = 'Recrutador'
+select * from funcionario 
+
+ --3
+
+ create procedure insert_bonus_gerente
+ @matricula int, @nome varchar(30), @salario numeric(12,2), @departamento
+varchar(40), @cargo
+varchar(40)
+AS
+DECLARE @matricula_cod int, @bonus numeric(12,2)
+set @matricula_cod = 0 
+SELECT @matricula_cod = MATRICULA FROM FUNCIONARIO WHERE MATRICULA = @matricula
+IF @cargo = 'GERENTE'
+BEGIN
+UPDATE FUNCIONARIO
+SET SALARIO = SALARIO * 1.1
+WHERE MATRICULA = @matricula
+END
+ELSE IF @cargo <> 'GERENTE'
+BEGIN
+IF @matricula_cod = 0
+ BEGIN
+ INSERT INTO FUNCIONARIO values(@matricula, @nome, @salario+@bonus,
+@departamento, @cargo)
+ END
+ELSE
+ BEGIN
+ UPDATE FUNCIONARIO
+ SET NOME = @nome, SALARIO = @salario, DEPARTAMENTO = @departamento,CARGO =
+@cargo
+ WHERE MATRICULA = @matricula
+END
+END
+
+
+ select * from FUNCIONARIO
+ exec insert_bonus_gerente @matricula = 75293852, @nome = 'Ana Paula', @salario = 1900, @departamento = 'RH', @cargo = 'Gerente'
+
+
+ --4
+ create table PRODUTO
+(
+ CODIGO int not null primary key,
+ NOME varchar(30),
+ QUANTIDADE int,
+ VALOR numeric(12,2)
+)
+
+create procedure sp_insert_produtos
+@codigo int, @nome varchar(40), @quantidade int, @valor numeric(12,2)
+as
+declare @produto_cod int
+set @produto_cod = 0
+select @produto_cod = CODIGO from PRODUTO where CODIGO = @codigo 
+if @produto_cod = 0
+begin
+insert into PRODUTO values (@codigo, @nome, @quantidade, @valor)
+end
+else 
+begin
+update PRODUTO
+set QUANTIDADE = @quantidade
+where CODIGO = @codigo
+end
+
+--Execução
+exec sp_insert_produtos @codigo = 1450, @nome = 'Mamão', @quantidade = 55, @valor = 3.20
+select * from PRODUTO
+
+
+--5
+
+create table NF_PRODUTO
+(
+QUANTIDADE int,
+NF_CODIGO int,
+NF_NUMERO int,
+CONSTRAINT FK_Codigo FOREIGN KEY (NF_CODIGO) REFERENCES PRODUTO (CODIGO),
+CONSTRAINT FK_Numero FOREIGN KEY (NF_NUMERO) REFERENCES NOTA_FISCAL (NUMERO)
+)
+create table PRODUTO
+(
+ CODIGO int not null primary key,
+ NOME varchar(50),
+ QUANTIDADE int,
+ VALOR numeric(12,2)
+)
+create table NOTA_FISCAL
+(
+ NUMERO int not null primary key,
+DATA date
+)
+
+create procedure SP_INSERT_NF_PRODUTO
+ @quantidade int, @codigo int, @numero int
+AS
+DECLARE @estoque int, @vendidos int
+SELECT @estoque = P.QUANTIDADE,@vendidos = NP.QUANTIDADE FROM PRODUTO P,
+NF_PRODUTO NP
+WHERE P.CODIGO = @codigo
+AND NP.NF_NUMERO = @numero
+AND P.CODIGO = NP.NF_CODIGO -- Relacionamento
+IF @vendidos < @estoque
+BEGIN
+PRINT 'Inserção cancelada por que numero de vendas esta menor que estoque'
+END
+ELSE
+BEGIN
+INSERT INTO NF_PRODUTO VALUES(@quantidade, @codigo, @numero)
+END
+SELECT * FROM PRODUTO
+SELECT * FROM NF_PRODUTO
+SELECT * FROM NOTA_FISCAL
+INSERT INTO NOTA_FISCAL VALUES(4545, '20220322')
+INSERT INTO NF_PRODUTO VALUES(10, 1450, 4545)
+
+
+---Execução
+exec SP_INSERT_NF_PRODUTO @quantidade = 2, @codigo = 1450, @numero = 4545
