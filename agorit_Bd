@@ -526,50 +526,153 @@ create table ALUNO
  coddis int,
  qtdefalta int)
 
-create procedure sp_Verificar_aluno
-@codigo int, @nome varchar(100), @mensalidade numeric(7,2), @nota1 numeric(3,1),
-@nota2 numeric(3,1), @coddis int, @qtdefalta int
+ insert into values
 
-declare @media numeric(3,1)
-set @media = (select(nota1+nota2)/2 from aluno where matricula = @matricula)
+ create table disciplina
+(codigo int primary key,
+ nome varchar(50),
+ carga_ho int
+ )
+
+ insert into disciplina values (1, 'Matematica', 80)
+ insert into disciplina values (2, 'Banco de dados', 80)
+ insert into disciplina values (3, 'Programação', 80)
+
+ select * from disciplina
+
+create procedure sp_media
+@codigo int
+as
+declare @media numeric(5,2)
+
+set @media = (select (nota1 + nota2)/2 from aluno where codigo = @codigo)
 if @media >= 7
 begin
-select 'APROVADO' + convert(char(5),@media)
-end 
-else if @media < 4
-begin 
-select 'REPROVADO' + convert(char(5),@media)
+ select 'APROVADO Média = '+ convert(char(5),@media)
 end
-else
-print 'RECUPERAÇÃO' + convert(char(5),@media)
+else if @media < 4
+ begin
+  select 'Reprovado Média = '+ convert(char(5),@media)
+ end
 
-insert into values (@codigo, @nome, @mensalidade, @nota1, @nota2, @coddis, @qtdefalta)
+ (continua)
 
 
 --2 Crie uma procedure em PL/SQL para inserir um aluno na tabela apenas se a
 --quantidade de alunos for menor que 10 senão apresentar a quantidade e
 --mensagem turma lotada.
 
-create procedure sp_inserir_aluno
+create procedure sp_qtde
+as
+declare @qtde int
+set @qtde = (select count(*) from ALUNO)
 
+if @qtde < 10
+begin
+ insert into aluno values (5,'Salete Aparecida',3,4,2,700,5)
+end
+else
+begin
+ select 'Turma Lotada' + + convert(char(5),@qtde)
+end
+
+
+exec sp_qtde
+select * from aluno
 
 --3) Faça uma procedure em PL/SQL que apresente a quantidade de alunos
 --aprovados, em recuperação e aprovados.
 
+create procedure sp_alunos
+as declare @apr int
+as declare @rep int
+as declare @rec int
 
+set @apr = (select count(*) from aluno where (nota1+nota2)/2 >= 7)
+set @rep = (select count(*) from aluno where (nota1+nota2)/2 < 4)
+set @apc = (select count(*) from aluno where (nota1+nota2)/2 >= 4   )
+
+if @apr >= 1
+begin
+ select 'Qtde de Aprovados' + convert(char(5), @rep)
+end
+
+if 
+begin
+ select 'Qtde de Aprovados' + convert(char(5), @rep)
+end
+
+(continua)
 
 --4) Crie a tabela disciplina (código, nome, cargaho) e relacione com a tabela aluno
 --e insira os dados na tabela disciplina e no campo da tabela aluno e elabore uma
 --procedure em PL/SQL que apresente os seguintes valores:
+
 --a) Para a disciplina Matemática mensalidade mais 10%
 --b) Para Banco de dados mensalidade menos 20 %
 --c) Para Programação mensalidade mais 15%
 
+create procedure sp_disciplina
+@disci int
+as
+
+if @disci = 1 --matematica
+begin
+  select a.nome,d.nome,a.mensalidade*1.1 as 'Mensalidade + 10%' from aluno a
+  inner join disciplina d
+  on a.coddis = d.codigo
+  where a.coddis = @disci
+end
+else if @disci = 2
+begin
+  select a.nome,d.nome,a.mensalidade*0.8 as 'Mensalidade - 20%' from aluno a
+  inner join disciplina d
+  on a.coddis = d.codigo
+  where a.coddis = @disci
+end
+else if @disci = 3
+begin
+  select a.nome,d.nome,a.mensalidade*1.15 as 'Mensalidade + 15%' from aluno a
+  inner join disciplina d
+  on a.coddis = d.codigo
+  where a.coddis = @disci
+end
+
+--drop procedure sp_disciplina
+exec sp_disciplina 1
 
 
 --5 Desenvolva uma procedure em PL/SQL que passe por parâmetro o código do
 --aluno e se não encontrar mostrar a mensagem aluno não cadastrado, se
 --encontrar mostrar o nome a media e a disciplina cursada. 
+
+create procedure sp_alu
+@codigo int
+as
+declare @media numeric(5,2)
+declare @disci varchar(40)
+declare @nome varchar(40)
+
+set @media = (select (nota1+nota2)/2 from aluno 
+  where codigo = @codigo)
+
+set @media = (select nome from aluno 
+  where codigo = @codigo)
+
+set @disci = (select d.nome from aluno a
+  inner join disciplina d
+  on a.coddis = d.codigo
+  where a.codigo = @codigo)
+
+if @media > 0
+begin
+  select @nome
+  select @disci
+  select @media
+end
+
+--execução
+exec sp_alu 2
 
 ------EXERCICIOS DE STORED PROCEDURE 310322-------
 
