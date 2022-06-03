@@ -799,3 +799,78 @@ end
 
 exec sp_email 5
 select * from aluno
+
+
+-- Triggers --
+
+--create database Db_02062022 
+--use Db_02062022 
+
+--Construir uma trigger ao inserir um registro na tabela produto, inserir dados em uma nova tabela para
+--armazenar os dados e valores dos produtos com o valor total, bem como todos os valores conforme
+--cada percentual exemplo: para calcular o %INSS, Valorinss = ((qtde * vlr unit) * 8) /100
+
+create table PROD (
+codigo int,
+nome varchar(30),
+vlr_unit numeric(10,2),
+qtde int,
+INSS int,
+IPI int,
+PIS int,
+COF int,
+CSL int,
+ICMS int,
+)
+
+create table RECEB (
+codigo int,
+nome varchar(30),
+vlr_unit numeric(10,2),
+qtde int,
+INSS int,
+IPI int,
+PIS int,
+COF int,
+CSL int,
+ICMS int,
+vlr_total int,
+)
+
+CREATE TRIGGER tr_dados ON PROD
+FOR INSERT
+AS
+
+declare @codigo int, @nome varchar(30), @vlr_unit numeric(10,2), @qtde int,
+@INSS int, @IPI int, @PIS int, @COF int, @CSL int, @ICMS int, @vlr_total int
+
+set @codigo =(select codigo from inserted)
+set @nome = (select nome from inserted)
+set @vlr_unit = (select vlr_unit from inserted)
+set @qtde = (select qtde from inserted)
+set @INSS = (select INSS from inserted)
+set @IPI = (select IPI from inserted)
+set @PIS = (select PIS from inserted)
+set @COF = (select COF from inserted)
+set @CSL = (select CSL from inserted)
+set @ICMS = (select ICMS from inserted)
+set @vlr_total = (SELECT @vlr_unit * @qtde) + @INSS + @IPI + @PIS + @COF +
+@CSL + @ICMS 
+
+-------Para fazer direto-------
+/*
+select @codigo = codigo, @nome = nome, @vlr_unit = vlr_unit, @qtde = qtde,
+@INSS = INSS, @IPI = IPI, @PIS = PIS, @COF = COF, @CSL = CSL, @ICMS = ICMS,
+@vlr_total from inserted
+*/
+
+SET @INSS = ((@qtde * @vlr_total)*@INSS)/100
+SET @IPI = ((@qtde * @vlr_total)*@IPI)/100
+SET @PIS = ((@qtde * @vlr_total)*@PIS)/100
+SET @ICMS = ((@qtde * @vlr_total)*@ICMS)/100
+SET @COF = ((@qtde * @vlr_total)*@COF)/100
+SET @CSL = ((@qtde * @vlr_total)*@CSL)/100
+
+insert into RECEB values ( @codigo, (@qtde * @vlr_total), @INSS, @IPI, @PIS, @COF, @CSL, @ICMS)
+
+END
